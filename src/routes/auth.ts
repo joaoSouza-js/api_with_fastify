@@ -3,13 +3,11 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { prisma } from "../libs/prisma";
 
-
-
 export async function AuthRoutes(app: FastifyInstance) {
     app.post("/auth/login", async (request: FastifyRequest, reply: FastifyReply) => {
         const loginSchema = z.object({
             email: z.string().email(),
-            password: z.string().min(8),
+            password: z.string(),
         });
 
 
@@ -21,11 +19,11 @@ export async function AuthRoutes(app: FastifyInstance) {
         })
 
         if(!user) {
-            return reply.status(401).send({message: "email is not registered"})
+            return reply.status(401).send({message: "O Email não está cadastrado"})
         }
 
         if(user.password !== password) {
-            return reply.status(401).send({message: "password or email is incorrect"})
+            return reply.status(401).send({message: "Senha ou Email incorretos"})
         }
 
         const token = app.jwt.sign({

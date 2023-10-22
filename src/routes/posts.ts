@@ -22,6 +22,7 @@ export async function PostRoutes(app: FastifyInstance) {
                         lte: new Date()
                     }
                 },
+                
                 include: {
                     author: {
                         select: {
@@ -34,14 +35,63 @@ export async function PostRoutes(app: FastifyInstance) {
                         }
                     }
                 }
+                
+            })
+            const postsFormatted = posts.map((post) => {
+                const owner = post.authorId === request.user.sub;
+                return {
+                    id: post.id,
+                    title: post.title,
+                    content: post.content,
+                    createdAt: post.createdAt,
+                    updatedAt: post.updatedAt,
+                    scheduled: post.scheduled,
+                    published: post.published,
+                    category: post.category?.name,
+                    author: post.author?.name,
+                    owner: owner
+                
+                    
+                }
             })
 
-            return reply.status(200).send(posts)
+            return reply.status(200).send(postsFormatted)
         }
 
-        const posts = await prisma.post.findMany();
+        const posts = await prisma.post.findMany({
+            include: {
+                author: {
+                    select: {
+                        name: true
+                    }
+                },
+                category: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
 
-        return reply.status(200).send(posts);
+        const postsFormatted = posts.map((post) => {
+            const owner = post.authorId === request.user.sub;
+            return {
+                id: post.id,
+                title: post.title,
+                content: post.content,
+                createdAt: post.createdAt,
+                updatedAt: post.updatedAt,
+                scheduled: post.scheduled,
+                published: post.published,
+                category: post.category?.name,
+                author: post.author?.name,
+                owner: owner
+                
+            }
+
+        })
+
+        return reply.status(200).send(postsFormatted);
 
     });
 
@@ -79,7 +129,7 @@ export async function PostRoutes(app: FastifyInstance) {
             return reply.status(400).send({message: "category does not exist"})
         }
 
-        await prisma.post.create({
+        const postCreated = await prisma.post.create({
             data: {
                 title: title,
                 content: content,
@@ -89,7 +139,21 @@ export async function PostRoutes(app: FastifyInstance) {
             }
         })
 
-        reply.status(201).send()
+
+        const PostFormatted = {
+                id: postCreated.id,
+                title: postCreated.title,
+                content: postCreated.content,
+                createdAt: postCreated.createdAt,
+                updatedAt: postCreated.updatedAt,
+                scheduled: postCreated.scheduled,
+                published: postCreated.published,
+                category: categoryExists.name,
+                author: request.user.name,
+                owner: true            
+        }
+
+        reply.status(201).send(PostFormatted)
     })
 
     app.delete("/posts/:id", async (request, reply) => {
