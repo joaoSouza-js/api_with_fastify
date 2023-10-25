@@ -31,7 +31,8 @@ export async function PostRoutes(app: FastifyInstance) {
                     },
                     category: {
                         select: {
-                            name: true
+                            name: true,
+                            id: true
                         }
                     }
                 }
@@ -48,6 +49,7 @@ export async function PostRoutes(app: FastifyInstance) {
                     scheduled: post.scheduled,
                     published: post.published,
                     category: post.category?.name,
+                    categoryId: post?.category?.id,
                     author: post.author?.name,
                     owner: owner
                 
@@ -67,7 +69,8 @@ export async function PostRoutes(app: FastifyInstance) {
                 },
                 category: {
                     select: {
-                        name: true
+                        name: true,
+                        id: true
                     }
                 }
             }
@@ -84,6 +87,7 @@ export async function PostRoutes(app: FastifyInstance) {
                 scheduled: post.scheduled,
                 published: post.published,
                 category: post.category?.name,
+                categoryId: post?.category?.id,
                 author: post.author?.name,
                 owner: owner
                 
@@ -149,6 +153,7 @@ export async function PostRoutes(app: FastifyInstance) {
                 scheduled: postCreated.scheduled,
                 published: postCreated.published,
                 category: categoryExists.name,
+                categoryId: categoryExists.id,
                 author: request.user.name,
                 owner: true            
         }
